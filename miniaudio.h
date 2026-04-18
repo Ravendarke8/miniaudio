@@ -51661,30 +51661,22 @@ static ma_vec3f ma_get_channel_direction(ma_channel channel)
 
 
 
-
-//static float ma_attenuation_inverse(float distance, float minDistance, float maxDistance, float rolloff)
-//{
-//    if (minDistance >= maxDistance) {
-//        return 1;   /* To avoid division by zero. Do not attenuate. */
-//    }
-//
-//    return minDistance / (minDistance + rolloff * (ma_clamp(distance, minDistance, maxDistance) - minDistance));
-//}
-
-static float ma_attenuation_linear(float distance, float minDistance, float maxDistance, float rolloff)
+static float ma_attenuation_inverse(float distance, float minDistance, float maxDistance, float rolloff)
 {
-    if (minDistance >= maxDistance || distance <= minDistance) {
+    if (minDistance >= maxDistance) {
         return 1;   /* To avoid division by zero. Do not attenuate. */
     }
 
-    if (distance >= maxDistance) {
-        return 0;
+    return minDistance / (minDistance + rolloff * (ma_clamp(distance, minDistance, maxDistance) - minDistance));
+}
+
+static float ma_attenuation_linear(float distance, float minDistance, float maxDistance, float rolloff)
+{
+    if (minDistance >= maxDistance) {
+        return 1;   /* To avoid division by zero. Do not attenuate. */
     }
 
-    float t = (distance - minDistance) / (maxDistance - minDistance);
-    float raw = 1.0f / (1.0f + rolloff * t);
-    float rawMax = 1.0f / (1.0f + rolloff);
-    return (raw - rawMax) / (1.0f - rawMax);
+    return 1 - rolloff * (ma_clamp(distance, minDistance, maxDistance) - minDistance) / (maxDistance - minDistance);
 }
 
 static float ma_attenuation_exponential(float distance, float minDistance, float maxDistance, float rolloff)
